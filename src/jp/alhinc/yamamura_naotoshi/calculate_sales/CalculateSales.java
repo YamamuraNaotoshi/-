@@ -39,9 +39,6 @@ public class CalculateSales {
 		}
 
 
-
-
-
 		// 集計ファイル
 		File fileName = new File(args[0]);
 		File fileNames[] = fileName.listFiles();
@@ -83,22 +80,17 @@ public class CalculateSales {
 		for (int i = 0; i < rcdList.size(); i++) {
 			BufferedReader br = null;
 			try {
-
 				FileReader fr = new FileReader(rcdList.get(i));
 				br = new BufferedReader(fr);
-				int lineCount = 0;
 				ArrayList<String> rcdLine = new ArrayList<String>();
 				String str;
 				while ((str = br.readLine()) != null) {
-					lineCount++;
 					rcdLine.add(str);
 				}
-
-				if(lineCount != 3){
+				if(rcdList.size() == 3){
 					System.out.println(fileNames[i]+"のフォーマットが不正です");
 					return;
 				}
-
 
 				if(!branchSaleMap.containsKey(rcdLine.get(0))){
 					System.out.println(fileNames[i]+"支店コードが不正です");
@@ -159,31 +151,13 @@ public class CalculateSales {
 		}
 
 
-
-		//branchSaleMap用のソートリスト生成
-		List<Map.Entry<String,Long>> branchentries =
-						new ArrayList<Map.Entry<String,Long>>(branchSaleMap.entrySet());
-		  Collections.sort(branchentries, new Comparator<Map.Entry<String,Long>>() {
-			  @Override
-			  public int compare(
-					Entry<String,Long> entry1, Entry<String,Long> entry2) {
-				  return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-			  }
-		  });
-		//commoditySaleMap用のソートリスト生成
-		List<Map.Entry<String,Long>> commodityentries =
-				new ArrayList<Map.Entry<String,Long>>(commoditySaleMap.entrySet());
-		  Collections.sort(commodityentries, new Comparator<Map.Entry<String,Long>>() {
-			  @Override
-			  public int compare(
-					Entry<String,Long> entry1, Entry<String,Long> entry2) {
-				  return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
-			  }
-		  });
 		  // branch・commodity内容を表示
-		 if(fileCreating(args[0],"branch.out",branchNameMap,branchentries)) {
+		 if(!fileCreating(args[0],"branch.out",branchNameMap,branchSaleMap)) {
+			 return;
 		 }
-		 fileCreating(args[0],"commodity.out",commodityNameMap,commodityentries);
+		 if(!fileCreating(args[0],"commodity.out",commodityNameMap,commoditySaleMap)){
+			 return;
+		 }
 	}
 
 
@@ -230,17 +204,27 @@ public class CalculateSales {
 	}
 
 
-	static boolean fileCreating(String dir, String fileName, HashMap<String, String> name, List<Map.Entry<String,Long>> sale) {
+	static boolean fileCreating(String dir, String fileName
+			, HashMap<String, String> nameMap,HashMap<String, Long> saleMap ) {
 		BufferedWriter bw = null;
+
+		List<Map.Entry<String,Long>> entries =
+			new ArrayList<Map.Entry<String,Long>>(saleMap.entrySet());
+		 Collections.sort(entries, new Comparator<Map.Entry<String,Long>>() {
+			  @Override
+			  public int compare(
+				Entry<String,Long> entry1, Entry<String,Long> entry2) {
+				  return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
+			  	}
+		  });
 		try {
 			File file = new File(dir, fileName);
 			bw = new BufferedWriter(new FileWriter(file));
-			 for (Entry<String,Long> esl : sale) {
-				bw.write(esl.getKey() + "," + name.get(esl.getKey()) + "," + esl.getValue());
+			 for (Entry<String,Long> esl : entries) {
+				bw.write(esl.getKey() + "," + nameMap.get(esl.getKey()) + "," + esl.getValue());
 				bw.newLine();
-				System.out.println(esl.getKey() + "," + name.get(esl.getKey()) + "," + esl.getValue());
+
 			}
-			bw.close();
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
 			return false;
