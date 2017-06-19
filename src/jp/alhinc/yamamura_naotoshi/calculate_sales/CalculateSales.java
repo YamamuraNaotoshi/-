@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 
 public class CalculateSales {
 
-	@SuppressWarnings("resource")
+
 	public static void main(String[] args) {
 		if(args.length != 1){
 			System.out.println("予期せぬエラーが発生しました");
@@ -25,84 +25,15 @@ public class CalculateSales {
 		}
 
 
-		String s;
-		String set;
-		String str;
 
 		HashMap<String, String> branchNameMap = new HashMap<String, String>(); // 支店コード・支店名
 		HashMap<String, String> commodityNameMap = new HashMap<String, String>(); // 商品コード・商品名
 		HashMap<String, Long> branchSaleMap = new HashMap<String, Long>(); // 支店コード・売り上げ
 		HashMap<String, Long> commoditySaleMap = new HashMap<String, Long>(); // 商品コード・売り上げ
 
-		// 支店定義ファイルの読み込み
-//		System.out.println("【支店定義ファイルを読み込み】");
-		try {
-			File file = new File(args[0], "branch.lst"); // ファイルの場所
-			FileReader fr = new FileReader(file); // fileオブジェクト引数→filereaderオブジェクト作成
-			BufferedReader br = new BufferedReader(fr); // filereader→bufferedreaderオブジェクト作成
-			while ((s = br.readLine()) != null) { // 文字列をsに代入、その値がnullと比較nullでwhileループ終了
-				String[] branchs = s.split(",", 0);
-				try {
-					if (branchs[0].matches("[0-9]{3}") && branchs[1].matches("[^,].*支店") && 2 == branchs.length) {
-						// branchs[0]の文字列が数字（0～9）の3桁であるか
-						// branchs[1]の文字列に","が含まれているか
-						// branchsの文字列数が2つである場合
-						branchNameMap.put(branchs[0], branchs[1]);
-						branchSaleMap.put(branchs[0], 0L);
-					} else {
-						System.out.println("支店定義ファイルのフォーマットが不正です");
-						return;
-					}
-				} catch (Exception e) {
-					System.out.println("支店定義ファイルのフォーマットが不正です");
-					return;
-				}
-			}
-			br.close(); // ストリームを閉じる
-		} catch (IOException e) {
-			System.out.println("支店定義ファイルのフォーマットが不正です");
-			return;
-		}
-		 catch(ArrayIndexOutOfBoundsException e){
-			 System.out.println("予期せぬエラーが発生しました");
-			 return;
-		} finally {
-//			System.out.println("【支店定義ファイルの読み込みが終わりました】");
-		}
-
-		// 商品定義ファイルの読み込み
-//		System.out.println("【商品定義ファイルを読み込む】");
-		try {
-			File file = new File(args[0], "Commodity.lst");
-			FileReader fr = new FileReader(file);
-			BufferedReader br = new BufferedReader(fr);
-			while ((set = br.readLine()) != null) {
-				String[] commoditys = set.split(",", 0);
-				try {
-					if (commoditys[0].matches("[0-z]{8}") && commoditys[1].matches(".*[^,].*")
-							&& 2 == commoditys.length) {
-						commodityNameMap.put(commoditys[0], commoditys[1]);
-						commoditySaleMap.put(commoditys[0], 0L);
-					} else {
-						System.out.println("商品定義ファイルのフォーマットが不正です");
-						return;
-					}
-				} catch (Exception e) {
-					System.out.println("支店定義ファイルのフォーマットが不正です");
-					return;
-				}
-			}
-			br.close();
-		} catch (IOException e) {
-			System.out.println("商品定義ファイルが存在しません");
-			return;
-		}
-		 catch(ArrayIndexOutOfBoundsException e){
-			 System.out.println("予期せぬエラーが発生しました");
-			 return;
-		} finally {
-//			System.out.println("【商品定義ファイルの読み込みが終わりました】");
-		}
+		//支店・商品定義ファイルの読み込み
+		Map(args[0], "branch.lst","[0-9]{3}","[^,].*支店", branchNameMap, branchSaleMap,"支店");
+		Map(args[0], "commodity.lst","[0-z]{8}",".*[^,].*", commodityNameMap, commoditySaleMap,"商品");
 
 		// 集計ファイル
 
@@ -143,6 +74,7 @@ public class CalculateSales {
 		}
 
 
+
 		// 集計
 		for (int i = 0; i < rcdList.size(); i++) {
 			BufferedReader br = null;
@@ -152,6 +84,7 @@ public class CalculateSales {
 				br = new BufferedReader(fr);
 				int lineCount = 0;
 				ArrayList<String> rcdLine = new ArrayList<String>();
+				String str;
 				while ((str = br.readLine()) != null) {
 					lineCount++;
 					rcdLine.add(str);
@@ -192,6 +125,7 @@ public class CalculateSales {
 					branchSum = Long.parseLong(rcdLine.get(2));
 					branchSaleMap.put(rcdLine.get(0), branchSum);
 				}
+
 		//commodityの計算
 				if (commoditySaleMap.containsKey(rcdLine.get(1))) {
 					commoditySum = commoditySaleMap.get(rcdLine.get(1));
@@ -206,24 +140,27 @@ public class CalculateSales {
 					commoditySum = Long.parseLong(rcdLine.get(2));
 					commoditySaleMap.put(rcdLine.get(1), commoditySum);
 				}
+
+
 			} catch (FileNotFoundException e) {
-				// TODO 自動生成された catch ブロック
-				e.printStackTrace();
+				System.out.println("予期せぬエラーが発生しました");
+				return;
 			} catch (IOException e) {
-				// TODO 自動生成された catch ブロック
-				e.printStackTrace();
+				System.out.println("予期せぬエラーが発生しました");
+				return;
 			} finally {
 				try {
 					br.close();
 				} catch (IOException e) {
-					// TODO 自動生成された catch ブロック
-					e.printStackTrace();
+					System.out.println("予期せぬエラーが発生しました");
+					return;
 				}
 			}
 		}
 
 
-		//branchSaleMap用のソートリスト生成
+
+//branchSaleMap用のソートリスト生成
 		List<Map.Entry<String,Long>> branchentries =
 						new ArrayList<Map.Entry<String,Long>>(branchSaleMap.entrySet());
 		  Collections.sort(branchentries, new Comparator<Map.Entry<String,Long>>() {
@@ -234,23 +171,8 @@ public class CalculateSales {
 				  return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
 			  }
 		  });
-		   // 内容を表示
-			try {
-			File file = new File(args[0], "branch.out");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			for (Entry<String,Long> bh : branchentries) {
-				bw.write(bh.getKey() + "," + branchNameMap.get(bh.getKey()) + "," + bh.getValue());
-				bw.newLine();
-				System.out.println(bh.getKey() + "," + branchNameMap.get(bh.getKey()) + "," + bh.getValue());
-			}
-			bw.close();
-		} catch (IOException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		}
 
-
-		//commoditySaleMap用のソートリスト生成
+//commoditySaleMap用のソートリスト生成
 		List<Map.Entry<String,Long>> commodityentries =
 				new ArrayList<Map.Entry<String,Long>>(commoditySaleMap.entrySet());
 		  Collections.sort(commodityentries, new Comparator<Map.Entry<String,Long>>() {
@@ -261,23 +183,55 @@ public class CalculateSales {
 				  return ((Long)entry2.getValue()).compareTo((Long)entry1.getValue());
 			  }
 		  });
-	   // 内容を表示
-			try {
-			File file = new File(args[0], "commodity.out");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			 for (Entry<String,Long> ch : commodityentries) {
-				bw.write(ch.getKey() + "," + commodityNameMap.get(ch.getKey()) + "," + ch.getValue());
-				bw.newLine();
-				System.out.println(ch.getKey() + "," + commodityNameMap.get(ch.getKey()) + "," + ch.getValue());
-			}
-			bw.close();
-		} catch (IOException e) {
-			System.out.println("予期せぬエラーが発生しました");
-			return;
-		}
+// branch・commodity内容を表示
+		  BCout(args[0],"branch.out",branchNameMap,branchentries);
+		  BCout(args[0],"commodity.out",commodityNameMap,commodityentries);
 	}
 
 
+
+
+
+
+
+
+//メソッド分け
+//支店・商品定義ファイル読み込みメソッド
+static void Map(String dir,String filename,String code,String name
+		,HashMap<String,String>NameMap,HashMap<String,Long>SaleMap,String error){
+	String s;
+	try {
+		File file = new File(dir, filename); // ファイルの場所
+		FileReader fr = new FileReader(file); // fileオブジェクト引数→filereaderオブジェクト作成
+		@SuppressWarnings("resource")
+		BufferedReader br = new BufferedReader(fr); // filereader→bufferedreaderオブジェクト作成
+		while ((s = br.readLine()) != null) { // 文字列をsに代入、その値がnullと比較nullでwhileループ終了
+			String[] branchs = s.split(",", 0);
+			try {
+				if (branchs[0].matches(code) && branchs[1].matches(name) && 2 == branchs.length) {
+					NameMap.put(branchs[0], branchs[1]);
+					SaleMap.put(branchs[0], 0L);
+				} else {
+					System.out.println(error+"定義ファイルのフォーマットが不正です");
+					return;
+				}
+			} catch (Exception e) {
+				System.out.println(error+"定義ファイルのフォーマットが不正です");
+				return;
+			}
+		}
+		//br.close(); // ストリームを閉じる
+	} catch (IOException e) {
+		System.out.println(error+"定義ファイルのフォーマットが不正です");
+		return;
+	}
+	 catch(ArrayIndexOutOfBoundsException e){
+		 System.out.println("予期せぬエラーが発生しました");
+		 return;
+	} finally {
+
+	}
+}
 
 
 	static boolean BCout(String dir, String fileName, HashMap<String, String> name, List<Map.Entry<String,Long>> sale) {
@@ -296,6 +250,7 @@ public class CalculateSales {
 			System.out.println("予期せぬエラーが発生しました");
 		}
 		return false;
+
 	}
 
 }
