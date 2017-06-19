@@ -99,6 +99,11 @@ public class CalculateSales {
 				// 計算開始
 				long branchSum;
 				long commoditySum;
+				//数値以外エラー
+				if(!rcdLine.get(2).matches("[0-9]*$")){
+					System.out.println("予期せぬエラーが発生しました");
+					return;
+				}
 				//branchの計算
 				if (branchSaleMap.containsKey(rcdLine.get(0))) {
 					branchSum = branchSaleMap.get(rcdLine.get(0));
