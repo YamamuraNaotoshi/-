@@ -89,11 +89,11 @@ public class CalculateSales {
 				}
 
 				if(!branchSaleMap.containsKey(rcdLine.get(0))){
-					System.out.println(fileNames[i].getName()+"支店コードが不正です");
+					System.out.println(fileNames[i].getName()+"の支店コードが不正です");
 					return;
 				}
 				if(!commoditySaleMap.containsKey(rcdLine.get(1))){
-					System.out.println(fileNames[i].getName()+"商品コードが不正です");
+					System.out.println(fileNames[i].getName()+"の商品コードが不正です");
 					return;
 				}
 				// 計算開始
@@ -159,8 +159,6 @@ public class CalculateSales {
 
 
 
-
-
 	//メソッド分け
 	//支店・商品定義ファイル読み込みメソッド
 	static boolean fileLoading(String dir,String filename,String code
@@ -171,6 +169,7 @@ public class CalculateSales {
 			File file = new File(dir, filename); // ファイルの場所
 			if(!file.exists()){
 				System.out.println(error+"定義ファイルが存在しません");
+				return false;
 			}
 			FileReader fr = new FileReader(file); // fileオブジェクト引数→filereaderオブジェクト作成
 			br = new BufferedReader(fr); // filereader→bufferedreaderオブジェクト作成
@@ -197,7 +196,6 @@ public class CalculateSales {
 				 System.out.println("予期せぬエラーが発生しました");
 				 return false;
 			}
-
 		}
 		return true;
 	}
@@ -222,7 +220,6 @@ public class CalculateSales {
 			 for (Entry<String,Long> esl : entries) {
 				bw.write(esl.getKey() + "," + nameMap.get(esl.getKey()) + "," + esl.getValue());
 				bw.newLine();
-
 			}
 		} catch (IOException e) {
 			System.out.println("予期せぬエラーが発生しました");
