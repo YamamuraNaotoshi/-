@@ -50,13 +50,9 @@ public class CalculateSales {
 		// rcdファイル読み込み
 
 		for (int i = 0; i < fileNames.length; i++) {
-			if (fileNames[i].getName().matches("[0-9]{8}\\.rcd$")) {
+			if (fileNames[i].getName().matches("[0-9]{8}\\.rcd$") && fileNames[i].isFile()) {
 				rcdList.add(fileNames[i]);
-				 File item = fileNames[i];
-				 if (item.isDirectory()) {
-					 System.out.println("連番ではありません");
-					 return;
-				 }
+
 				String[] rcdData = fileNames[i].getName().split("\\.");
 				rcdName.add(rcdData[0]);
 			}
@@ -87,17 +83,17 @@ public class CalculateSales {
 				while ((str = br.readLine()) != null) {
 					rcdLine.add(str);
 				}
-				if(rcdList.size() == 3){
-					System.out.println(fileNames[i]+"のフォーマットが不正です");
+				if(rcdLine.size() != 3){
+					System.out.println(fileNames[i].getName()+"のフォーマットが不正です");
 					return;
 				}
 
 				if(!branchSaleMap.containsKey(rcdLine.get(0))){
-					System.out.println(fileNames[i]+"支店コードが不正です");
+					System.out.println(fileNames[i].getName()+"支店コードが不正です");
 					return;
 				}
 				if(!commoditySaleMap.containsKey(rcdLine.get(1))){
-					System.out.println(fileNames[i]+"商品コードが不正です");
+					System.out.println(fileNames[i].getName()+"商品コードが不正です");
 					return;
 				}
 				// 計算開始
@@ -173,6 +169,9 @@ public class CalculateSales {
 		BufferedReader br = null;
 		try {
 			File file = new File(dir, filename); // ファイルの場所
+			if(!file.exists()){
+				System.out.println(error+"定義ファイルが存在しません");
+			}
 			FileReader fr = new FileReader(file); // fileオブジェクト引数→filereaderオブジェクト作成
 			br = new BufferedReader(fr); // filereader→bufferedreaderオブジェクト作成
 			while ((s = br.readLine()) != null) { // 文字列をsに代入、その値がnullと比較nullでwhileループ終了
@@ -192,7 +191,7 @@ public class CalculateSales {
 		} finally {
 			try {
 				if(br != null){
-				br.close();
+					br.close();
 				}
 			} catch (IOException e) {
 				 System.out.println("予期せぬエラーが発生しました");
@@ -231,7 +230,9 @@ public class CalculateSales {
 		}
 		finally{
 			try {
-				bw.close();
+				if(bw!= null){
+					bw.close();
+				}
 			} catch (IOException e) {
 				System.out.println("予期せぬエラーが発生しました");
 				return false;
